@@ -3,3 +3,4 @@ output/*
 *.zip
 *.jpg
 !*.py
+*.swp
