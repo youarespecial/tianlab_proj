@@ -1,0 +1,1 @@
+python3 ./process_sum_v3new.py --input-deg ~/tianlab/tools/scRef-master/Reference/L2/L2_zy/MouseMidbrain_SingleCell_Manno2016/GSE76381_MouseEmbryoMoleculeCounts.cef.txt --cell-type ~/tianlab/tools/scRef-master/Reference/L2/L2_zy/MouseMidbrain_SingleCell_Manno2016/cell_type.txt -o ./
