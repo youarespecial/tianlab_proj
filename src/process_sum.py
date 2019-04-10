@@ -10,8 +10,16 @@ import numpy as np
 from collections import defaultdict
 
 def read_celltype(csv_path, key_name='Raw_colnm', value_names=['Dir', 'CL_ID'], sep='\t'):
-    df = pd.read_csv(csv_path, header=0, sep=sep, index_col=None)
+    #df = pd.read_csv(csv_path, header=0, sep=sep, index_col=None)
     #df = pd.DataFrame(li[1:], columns=li[0], index=None)
+    colunms = []
+    with open(csv_path, 'r') as f:
+        lines = f.readlines()
+        lines_split = [l.strip().split(sep) for l in lines]
+        columns = lines_split[0]
+        nrof_col = len(columns)
+        data = [i[:nrof_col] for i in lines_split[1:]]
+        df = pd.DataFrame(data, columns=columns, index=None)
     columns = list(df.columns)
 
     for name in [key_name] + value_names:
