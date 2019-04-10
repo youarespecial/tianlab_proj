@@ -5,9 +5,11 @@ deg_path=$data_dir/GSE112393_MergedAdultMouseST25_DGE.txt
 attr_path=$data_dir/GSE112393_MergedAdultMouseST25_PerCellAttributes.txt
 
 celltype_path=$data_dir/cell_type.txt
-output_dir=./scripts/MouseTestis_SingleCell_Green2018/output
+bash_dir=$(cd `dirname $0`; pwd)
+output_dir=$bash_dir/output
+src_dir=$bash_dir/../../src
 
-python src/process_sum.py \
+python $src_dir/process_sum.py \
 	--input-deg $deg_path \
 	--input-attr $attr_path \
 	--cell-type $celltype_path \

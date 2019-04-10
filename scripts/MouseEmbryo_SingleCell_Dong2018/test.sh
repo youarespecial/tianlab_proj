@@ -1,14 +1,16 @@
-data_dir=./scripts/MouseEmbryo_SingleCell_Dong2018
+data_dir=/home/disk/yangjing/tianlab/tools/scRef-master/Reference/L2/L2_zy/MouseEmbryo_SingleCell_Dong2018
 
-deg_path=$data_dir/counts_matrix.txt
-attr_path=$data_dir/m_cell_annot.txt
+deg_path=$data_dir/GSE87038_Mouse_Organogenesis_UMI_counts_matrix.txt
+attr_path=$data_dir/cell_annotation.txt
+celltype_path=$data_dir/cell_type.txt
 
-celltype_path=$data_dir/m_cell_type.txt
-output_dir=$data_dir/test-output
+bash_dir=$(cd `dirname $0`; pwd)
+output_dir=$bash_dir/output-test
+src_dir=$bash_dir/../../src
 
-python src/process_sum.py \
+python $src_dir/process_sum.py \
 	--input-deg $deg_path \
 	--input-attr $attr_path \
 	--cell-type $celltype_path \
 	--output $output_dir \
-	--version 2
+	--version 2 
