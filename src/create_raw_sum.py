@@ -27,7 +27,7 @@ from process_common import *
 def main(args):
     CHECK_EXIST(args.input, 'f')
     CHECK_EXIST(args.cell_meta, 'f')
-    CHECK_EXIST(args.cell_type, 'f')
+    CHECK_EXIST(args.cell_typ, 'f')
     
     MAKE_EXIST(args.output, 'd')
 
@@ -36,7 +36,7 @@ def main(args):
 
 
     #### 1. create raw file
-    celltype_map = read_celltype(args.cell_type, key_name=args.key_name, index_col=None)
+    celltype_map = read_celltype(args.cell_typ, key_name=args.key_name, index_col=None)
     df_meta = pd.read_csv(args.cell_meta, sep='\t', header=0, index_col=None)
     fname = os.path.split(args.input)[-1]
     # fname = None
@@ -46,7 +46,7 @@ def main(args):
     write_csv(df_raw, output_raw_path)
 
     #### 2. create sum file
-    df_sum = gen_sum(df_raw, splitter='_', from_start=False, sep='\t', header=0, index_col=0)
+    df_sum = gen_sum(df_raw, splitter='|', from_start=False, sep='\t', header=0, index_col=0)
     write_csv(df_sum, output_sum_path)
 
     print('All done.')
@@ -54,15 +54,15 @@ def main(args):
 
 def parse_arguments(argv):
     parser = argparse.ArgumentParser()
-    parser.add_argument('-i', '--input', type=str, required=True, 
+    parser.add_argument('-i', '--input', required=True, 
         help='xxx')
-    parser.add_argument('--cell-meta', type=str, required=True, 
+    parser.add_argument('--cell-meta',default='', 
         help='xxx')
-    parser.add_argument('--cell-type', type=str, required=True, 
+    parser.add_argument('--cell-typ',default='', 
         help='xxx')
-    parser.add_argument('--key-name', default='Raw_colnm', 
+    parser.add_argument('--key-name', default='Cell type', 
         help='key name of cell-type file ')
-    parser.add_argument('-o', '--output', type=str, default='./output', 
+    parser.add_argument('-o', '--output', default='./output', 
         help='xxx')
     return parser.parse_args(argv)
 
