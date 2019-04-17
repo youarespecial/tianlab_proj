@@ -5,3 +5,6 @@ output/*
 *.jpg
 !*.py
 *.swp
+.DS_Store
+.ipynb_checkpoints/*
+__pycache__/*
