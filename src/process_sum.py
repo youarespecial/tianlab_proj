@@ -2,9 +2,10 @@
 ### python 3.5
 # -*- coding: utf-8 -*-
 
-import sys
-import argparse 
 import os
+import sys
+import shutil
+import argparse 
 import pandas as pd
 import numpy as np
 from collections import defaultdict
@@ -133,7 +134,7 @@ def read_file(file, sep='\t'):
     return df
 
 
-def write_exp_file(file_in, file_out, ignore_col_indices=[1, 2, 4, 5, 6, 7],cell_id_row_idx =3, cell_type_row_idx=4, sep='\t'):
+def write_cell_exp_v3(file_in, file_out, ignore_col_indices=[1, 2, 4, 5, 6, 7],cell_id_row_idx =3, cell_type_row_idx=4, sep='\t'):
     cell_type_row, cell_id_row = '', ''
     with open(file_in, 'r') as reader, open(file_out, 'w') as writer:
         for idx, line in enumerate(reader, start=1):
@@ -219,14 +220,59 @@ def MAKE_EXIST(path, typ='f'):
         os.makedirs(dir_to_check)
 
 
+def write_cell_meta_v3(csv_path, out_path, col_indices=(2,3)):
+    columns = ['ID', 'Cluster']
+    li = []
+    with open(csv_path, 'r' ) as f:
+        for idx, l in enumerate(f):
+            if idx in col_indices:
+                sp = l.strip().split('\t')[1:]
+                li.append(sp)
+            elif idx > max(col_indices):
+                break
+    arr = np.array(li).T
+    df = pd.DataFrame(arr, columns=columns, index=None)
+    df.to_csv(out_path, sep='\t', index=None)
+    print('Savint to', out_path)
+
+
+def write_cell_meta_v2(csv_path, out_path, columns_new=('ID', 'Cluster')):
+    df_in = pd.read_csv(csv_path, sep='\t', header=0, index_col=None)
+    df_out = df_in.iloc[:,[0, 1]]
+    df_out.columns = columns_new
+    df_out.to_csv(out_path, sep='\t', index=None)
+    print('Savint to', out_path)
+
+
+def write_cell_meta_v1(csv_path, out_path, columns_new=('ID', 'Cluster')):
+    num2cluster, _ = read_attribute_file(csv_path)
+
+    df_in = pd.read_csv(csv_path, sep='\t', header=0, index_col=None, skiprows=3)
+    li = []
+    #print('write_cell_meta_v1', df_in.columns)
+    #print(num2cluster)
+    for idx, row in df_in.iterrows():
+        bar = row['#CellBarcode']
+        cluster = num2cluster[str(row['CellType']).strip()]
+        li.append([bar, cluster])
+    df_out = pd.DataFrame(li, columns=columns_new, index=None)
+    df_out.to_csv(out_path, sep='\t', index=None)
+    print('Savint to', out_path)
+
+
 def main(args):
     CHECK_EXIST(args.input_deg, 'f')
     deg_filename = os.path.split(args.input_deg)[-1]
 
+    cell_exp_path = os.path.join(args.output, 'cell_exp.txt')
+    MAKE_EXIST(cell_exp_path, 'f')
+
+    cell_meta_path = os.path.join(args.output, 'cell_meta.txt')
+    MAKE_EXIST(cell_meta_path, 'f')
+
     if args.version == 3:
-        cell_exp_path = os.path.join(args.output, 'cell_exp.txt')
-        MAKE_EXIST(cell_exp_path, 'f')
-        dat_dic, original_index = write_exp_file(args.input_deg, cell_exp_path)
+        write_cell_meta_v3(args.input_deg, cell_meta_path)
+        dat_dic, original_index = write_cell_exp_v3(args.input_deg, cell_exp_path)
         print('Saving to ', cell_exp_path)
         cell_type_map = read_celltype(args.cell_type, value_names=['Dir', 'CL_ID']) 
         dat_dic_new = {}
@@ -243,11 +289,16 @@ def main(args):
         df_raw = pd.DataFrame(dat_dic_new, index=original_index)
 
     elif args.version == 2:
+        shutil.copy(args.input_deg, cell_exp_path) ####just copy
         cluster2cell = read_cell_annot(args.input_attr)
+        write_cell_meta_v2(args.input_attr, cell_meta_path)
+
         cell_type_map = read_celltype(args.cell_type, value_names=['Dir', 'CL_ID']) 
         print('cell_type_map=', cell_type_map) 
 
         df = read_file(args.input_deg)
+
+
         print('deg file.head()\n', df.head())
         columns = df.columns
         col_raw_arr = None
@@ -279,6 +330,9 @@ def main(args):
         df_raw = pd.DataFrame(col_raw_arr, columns=columns_raw, index=df.index)
 
     elif args.version == 1: 
+        shutil.copy(args.input_deg, cell_exp_path) ### just copy
+        write_cell_meta_v1(args.input_attr, cell_meta_path)
+
         barcode2col_values, deg_index = read_deg_file(args.input_deg)
         num2name_map, barcode2col_names = read_attribute_file(args.input_attr)
         print('barcode2col_names.keys=', barcode2col_names.keys())
@@ -326,14 +380,15 @@ def main(args):
     output_raw_path = os.path.join(args.output, 'exp_raw.txt')
     MAKE_EXIST(output_raw_path, 'f')
     df_raw.to_csv(output_raw_path, sep='\t')
-    print('Saving to', output_raw_path)
 
 
     output_sum_path = os.path.join(args.output, 'exp_sum.txt')
     MAKE_EXIST(output_sum_path, 'f')
     aggregate_cols_old(output_raw_path, output_sum_path, sep='\t', splitter='|', from_start=False)
-    print('Saving to', output_sum_path)
-
+    print('Saving to\n ', output_raw_path)
+    print(output_sum_path)
+    print(cell_meta_path)
+    print(cell_exp_path)
     print('All done.')
 
 
