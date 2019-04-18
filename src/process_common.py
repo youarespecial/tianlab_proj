@@ -163,10 +163,8 @@ def gen_sum(input_, splitter='|', from_start=False, sep='\t', header=0, index_co
     return df_out
 
 
-def merge_multi(input_dir, match_rule='*_EB-*.csv', header=0, index_col=0, sep='\t'):
-    file_paths = glob.glob(os.path.join(input_dir, '*_EB-*.csv'))
+def merge_multi(file_paths, header=0, index_col=0, sep='\t'):
     nrof_file = len(file_paths)
-    print('Totally found %3d file in directory %s'%(nrof_file, input_dir))
     df_out = None
     for p in file_paths:
         df = pd.read_csv(p, header=header, index_col=index_col, sep=sep)
