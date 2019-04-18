@@ -41,6 +41,8 @@ def main(args):
     # print(df_exp.describe())
     write_csv(df_exp, output_path, index=True)
 
+    prepend_to_file(output_path, 'Gene')
+    
     print('All done.')
             
 
