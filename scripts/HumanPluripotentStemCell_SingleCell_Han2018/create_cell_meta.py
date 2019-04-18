@@ -17,8 +17,9 @@ import shutil
 
 current_dir = os.path.dirname(__file__)
 
-sys.path.append(os.path.join(current_dir, '..'))
+sys.path.append(os.path.join(current_dir, '.'))
 sys.path.append(os.path.join(current_dir, '..', '..', 'src'))
+
 
 from path_tools import *
 from process_common import *
@@ -61,59 +62,36 @@ def gen_meta_map_dic(celltype_names, anno_names, sep=' '):
 
 
 def main(args):
-    CHECK_EXIST(args.input, typ='d')
-    output_exp_path = os.path.join(args.output, 'cell_exp.txt')
-    output_meta_path = os.path.join(args.output, 'cell_meta.txt')
-    output_raw_path = os.path.join(args.output, 'exp_raw.txt')
-    output_sum_path = os.path.join(args.output, 'exp_sum.txt')
-    MAKE_EXIST(output_exp_path, 'f')
+    CHECK_EXIST(args.anno, 'f')
+    CHECK_EXIST(args.cell_typ, 'f')
+    
+    MAKE_EXIST(args.output, 'd')
 
-
-    #### 1. create meta file
+    output_path = os.path.join(args.output, 'cell_meta.txt')
     celltype_map = read_celltype(args.cell_typ, key_name=args.key_name, sep='\t', header=0, index_col=None)
     celltype_names = list(set(celltype_map.keys()))
     df_anno = pd.read_csv(args.anno, header=0, index_col=None, sep=',')
     anno_names = list(df_anno['celltype'])
     
     meta_map_dic = gen_meta_map_dic(celltype_names, anno_names, sep=' ')
-
     df_meta = gen_meta(df_anno, meta_map_dic, columns=['ID', 'Cluster'], id_col_idx=0, cluster_col_idx=1)
-    write_csv(df_meta, output_meta_path, index=False)
-
-    #### 2. create exp file
-    file_paths = glob.glob(os.path.join(args.input, '*_EB-*.csv'))
-    df_mat = merge_multi(args.input, header=0, index_col=0, sep=',')
-    ## matrix_path = os.path.join(args.output, 'matrix.txt')
-    ## df_mat = pd.read_csv(matrix_path, sep='\t', header=0, index_col=0)
-
-    df_exp = gen_exp(df_mat, df_meta, col_id_name='ID', col_cluster_name='Cluster')
-    write_csv(df_exp, output_exp_path)
-    prepend_to_file(output_exp_path, 'Gene') ## add Gene to head
-
-    #### 3. create raw file
-    raw_map_dic = gen_raw_map_dic(df_meta, celltype_map, fname=None)
-    df_raw = gen_raw(df_mat, raw_map_dic)
-    write_csv(df_raw, output_raw_path)
-
-    #### 4. create sum file
-    df_sum = gen_sum(df_raw, splitter='|', from_start=False, sep='\t', header=0, index_col=0)
-    write_csv(df_sum, output_sum_path)
+    # print(df_meta.head())
+    # print(df_meta.describe())
+    write_csv(df_meta, output_path, index=False)
 
     print('All done.')
             
 
 def parse_arguments(argv):
     parser = argparse.ArgumentParser()
-    parser.add_argument('-i', '--input', type=str, required=True, 
-        help='xxx')
-    parser.add_argument('--cell-typ', type=str, required=True, 
-        help='xxx')
     parser.add_argument('--anno', type=str, required=True, 
-        help='xxx')
+        help='Input cell annotation file.')
+    parser.add_argument('--cell-typ', type=str, required=True, 
+        help='Input cell type file.')
     parser.add_argument('--key-name', default='Cell type', 
-        help='key name of cell-type file ')
+        help='Key name of cell-type file ')
     parser.add_argument('-o', '--output', type=str, default='./output', 
-        help='xxx')
+        help='Directory to save cell meta file.')
     return parser.parse_args(argv)
 
 
