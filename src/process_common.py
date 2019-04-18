@@ -210,3 +210,34 @@ def gen_raw_map_dic(df_meta, celltype_map, fname=None):
         dic[new_name].append(col_name)
     return dic
 
+
+def parse_meta(file_in, cell_id_row_idx=3, cell_type_row_idx=4, sep=','):
+    
+    def func_split(x, cont):
+        return x.strip().strip(sep).lstrip(cont).strip().strip(sep).split(sep)
+    
+    row_id, row_typ = [], []
+
+    with open(file_in, 'r') as reader:
+        for idx, line in enumerate(reader, start=1):
+            if idx == cell_type_row_idx:
+                row_typ = func_split(line, 'Cell_type')
+            if idx == cell_id_row_idx:
+                row_id = func_split(line, 'CELL_ID')
+            if row_id and row_typ:
+                break
+    if not row_id:
+        raise ValueError('Parsed empty ID col')
+
+    if not row_typ:
+        raise ValueError('Parsed empty Cluster col')
+
+    nrof_id, nrof_typ = len(row_id), len(row_typ)
+    if nrof_id != nrof_typ:
+        raise ValueError('Parsed ID and Cluster value number %s != %s\n ID=%s\nCluster=%s'%(nrof_id, 
+            nrof_typ, row_id, row_typ))
+
+    s_id = pd.Series(row_id, name='ID', index=None)
+    s_cls = pd.Series(row_typ, name='Cluster', index=None)
+    df = pd.concat([s_id, s_cls], axis=1)
+    return df
