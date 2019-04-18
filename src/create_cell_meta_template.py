@@ -30,13 +30,13 @@ def gen_meta_map_dic():
 
 def main(args):
     CHECK_EXIST(args.anno, 'f')
-    CHECK_EXIST(args.celltype, 'f')
+    CHECK_EXIST(args.cell_typ, 'f')
     
     MAKE_EXIST(args.output, 'd')
 
     output_path = os.path.join(args.output, 'cell_meta.txt')
     
-    celltype_map = read_celltype(args.celltype, key_name=args.key_name, index_col=None)
+    celltype_map = read_celltype(args.cell_typ, key_name=args.key_name, index_col=None)
     df_anno = pd.read_csv(args.anno, sep='\t', header=0, index_col=None)
     meta_map_dic = gen_meta_map_dic()
     df_meta = gen_meta(df_anno, meta_map_dic, columns=['ID', 'Cluster'], id_col_idx=0, cluster_col_idx=1)
@@ -51,9 +51,9 @@ def parse_arguments(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument('--anno', type=str, required=True, 
         help='Input cell annotation file.')
-    parser.add_argument('--celltype', type=str, required=True, 
+    parser.add_argument('--cell-typ', type=str, required=True, 
         help='Input cell type file.')
-    parser.add_argument('--key-name', default='Raw_colnm', 
+    parser.add_argument('--key-name', default='Cell type', 
         help='Key name of cell-type file ')
     parser.add_argument('-o', '--output', type=str, default='./output', 
         help='Directory to save cell meta file.')
