@@ -49,8 +49,8 @@ def main(args):
 
     output_path = os.path.join(args.output, 'cell_meta.txt')
 
-    #df_meta = read_meta(args.input)
-    df_meta = parse_meta(args.input, cell_id_row_idx=3, cell_type_row_idx=4, sep=',')
+    df_meta = read_meta(args.input)
+    ### df_meta = parse_meta(args.input, cell_id_row_idx=3, cell_type_row_idx=4, sep=',')
     # print(df_meta.head())
     # print(df_meta.describe())
     write_csv(df_meta, output_path, index=False)
