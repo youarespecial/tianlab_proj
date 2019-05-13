@@ -55,15 +55,15 @@ def main(args):
 def parse_arguments(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--input', required=True, 
-        help='xxx')
-    parser.add_argument('--cell-meta',default='', 
-        help='xxx')
-    parser.add_argument('--cell-typ',default='', 
-        help='xxx')
+        help='Input matrix file or cell exp file.')
+    parser.add_argument('--cell-meta', required=True, 
+        help='Input cell meta file.')
+    parser.add_argument('--cell-typ', required=True, 
+        help='Input cell type file.')
     parser.add_argument('--key-name', default='Cell type', 
         help='key name of cell-type file ')
     parser.add_argument('-o', '--output', default='./output', 
-        help='xxx')
+        help='Directory to save output.')
     return parser.parse_args(argv)
 
 

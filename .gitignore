@@ -2,6 +2,7 @@ data/*
 output
 output/*
 *.zip
+*.pyc
 *.jpg
 !*.py
 *.swp
