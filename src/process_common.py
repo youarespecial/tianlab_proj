@@ -172,6 +172,7 @@ def merge_multi(file_paths, header=0, index_col=0, sep='\t'):
             df_out = df
         else:
             df_out = df_out.join(df) 
+            #print('len(df.columns)=%s, len(df_out.columns=%s'%(len(df.columns), len(df_out.columns)))
     return df_out
 
 
@@ -193,8 +194,8 @@ def prepend_to_file(file_path, content):
 def gen_raw_map_dic(df_meta, celltype_map, fname=None):
     dic = {}
     for idx, row in df_meta.iterrows():
-        col_name = row['ID']
-        cluster = row['Cluster']
+        col_name = str(row['ID'])
+        cluster = str(row['Cluster'])
         if not cluster in celltype_map:
             info = get_cur_info()
             wprint( info + 'celltype=%s not in celltype_map.keys=%s'%(cluster, celltype_map.keys()))
@@ -203,7 +204,7 @@ def gen_raw_map_dic(df_meta, celltype_map, fname=None):
         if fname is None:
             li = [dir_, cluster, cl_id]
         else:
-            li = [dir_, fname, cluster, cl_id]
+            li = [str(dir_), str(fname), str(cluster), str(cl_id)]
         new_name = '|'.join(li)
         if not new_name in dic:
             dic[new_name] = []

@@ -25,7 +25,7 @@ from path_tools import *
 from process_common import *
 
 
-<<<<<<< HEAD
+
 def read_meta(file_in, cell_id_row_idx=3, cell_type_row_idx=4, sep='\t'):
     cell_type_row, cell_id_row = '', ''
     with open(file_in, 'r') as reader:
@@ -42,22 +42,16 @@ def read_meta(file_in, cell_id_row_idx=3, cell_type_row_idx=4, sep='\t'):
     return df
 
 
-=======
->>>>>>> 6413a416859e4f1769499f603e018e97094713a5
 def main(args):
     CHECK_EXIST(args.input, 'f')
     
     MAKE_EXIST(args.output, 'd')
 
     output_path = os.path.join(args.output, 'cell_meta.txt')
-<<<<<<< HEAD
-    
-    df_meta = read_meta(args.input)
-    print(df_meta.head())
-=======
+
+    #df_meta = read_meta(args.input)
     df_meta = parse_meta(args.input, cell_id_row_idx=3, cell_type_row_idx=4, sep=',')
     # print(df_meta.head())
->>>>>>> 6413a416859e4f1769499f603e018e97094713a5
     # print(df_meta.describe())
     write_csv(df_meta, output_path, index=False)
 
@@ -67,11 +61,7 @@ def main(args):
 def parse_arguments(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument('--input', type=str, required=True, 
-<<<<<<< HEAD
-        help='Input matrix file.')
-=======
         help='Input cell annotation file.')
->>>>>>> 6413a416859e4f1769499f603e018e97094713a5
     parser.add_argument('-o', '--output', type=str, default='./output', 
         help='Directory to save cell meta file.')
     return parser.parse_args(argv)

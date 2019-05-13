@@ -29,15 +29,21 @@ def main(args):
     
     MAKE_EXIST(args.output, 'f')
 
-    file_paths = []
-    for name in args.fnames:
-        path = os.path.join(args.input, name)
-        if not os.path.exists(path):
-            wprint('File not exists: ', path)
-            continue
-        file_paths.append(path)
+    if args.fnames:
+        file_paths = []
+        for name in args.fnames:
+            path = os.path.join(args.input, name)
+            if not os.path.exists(path):
+                wprint('File not exists: ', path)
+                continue
+            file_paths.append(path)
+    else:
+        file_paths = glob.glob(os.path.join(args.input, "*." + args.file_ext))
     nrof_file = len(file_paths)
     print('Totally %5d input files'%(nrof_file))
+    if not nrof_file:
+        wprint('Warning: no file with extension=%s found in %s'%(args.file_ext, args.input))
+        return
 
     df_merge = merge_multi(file_paths, header=0, index_col=0, sep=args.sep)
     write_csv(df_merge, args.output)
@@ -50,10 +56,12 @@ def parse_arguments(argv):
         help='Directory of all files')
     parser.add_argument('--fnames',  nargs='+', default=[],
         help='key name of cell-type file ')
-    parser.add_argument('--sep', default=',',
+    parser.add_argument('--sep', default='\t',
         help='Sep of input files.')
     parser.add_argument('-o', '--output', default='./output/output.txt', 
         help='File path to save output.')
+    parser.add_argument('--file-ext', default='csv',
+        help='File extension')
     return parser.parse_args(argv)
 
 
