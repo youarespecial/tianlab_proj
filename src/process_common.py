@@ -29,7 +29,7 @@ def read_celltype(csv_path, key_name='Raw_colnm', value_names=['Dir', 'CL_ID'], 
     for idx, row in df.iterrows():
         key = row[key_name]
         values = [row[n] for n in value_names]
-        if key in map_dic::
+        if key in map_dic:
             info = get_cur_info()
             print(info + 'key_name=%s has repeated value=%s'%(key_name, key))
         map_dic[key].append(values)
