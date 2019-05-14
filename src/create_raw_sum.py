@@ -60,7 +60,7 @@ def parse_arguments(argv):
         help='Input cell meta file.')
     parser.add_argument('--cell-typ', required=True, 
         help='Input cell type file.')
-    parser.add_argument('--key-name', default='Cell type', 
+    parser.add_argument('--key-name', default='Cell_type', 
         help='key name of cell-type file ')
     parser.add_argument('-o', '--output', default='./output', 
         help='Directory to save output.')

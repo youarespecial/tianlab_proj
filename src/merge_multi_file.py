@@ -60,7 +60,7 @@ def parse_arguments(argv):
         help='Sep of input files.')
     parser.add_argument('-o', '--output', default='./output/output.txt', 
         help='File path to save output.')
-    parser.add_argument('--file-ext', default='csv',
+    parser.add_argument('--file-ext', default='txt',
         help='File extension')
     return parser.parse_args(argv)
 
