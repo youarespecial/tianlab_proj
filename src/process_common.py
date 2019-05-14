@@ -24,15 +24,15 @@ def read_celltype(csv_path, key_name='Raw_colnm', value_names=['Dir', 'CL_ID'], 
     for name in [key_name] + value_names:
         if name not in columns:
             raise ValueError('name=%s not in columns=%s'%(name, columns))
-    map_dic = {}
+
+    map_dic = defaultdict(list)
     for idx, row in df.iterrows():
         key = row[key_name]
         values = [row[n] for n in value_names]
-        if key not in map_dic:
-            map_dic[key] = values
-        else:
+        if key in map_dic::
             info = get_cur_info()
-            wprint(info + 'key_name=%s has repeated value=%s'%(key_name, key))
+            print(info + 'key_name=%s has repeated value=%s'%(key_name, key))
+        map_dic[key].append(values)
     return map_dic
 
 
@@ -200,15 +200,16 @@ def gen_raw_map_dic(df_meta, celltype_map, fname=None):
             info = get_cur_info()
             wprint( info + 'celltype=%s not in celltype_map.keys=%s'%(cluster, celltype_map.keys()))
             continue
-        dir_, cl_id = celltype_map[cluster]
-        if fname is None:
-            li = [dir_, cluster, cl_id]
-        else:
-            li = [str(dir_), str(fname), str(cluster), str(cl_id)]
-        new_name = '|'.join(li)
-        if not new_name in dic:
-            dic[new_name] = []
-        dic[new_name].append(col_name)
+        for rec in celltype_map[cluster]:
+            dir_, cl_id = rec
+            if fname is None:
+                li = [dir_, cluster, cl_id]
+            else:
+                li = [str(dir_), str(fname), str(cluster), str(cl_id)]
+            new_name = '|'.join(li)
+            if not new_name in dic:
+                dic[new_name] = []
+            dic[new_name].append(col_name)
     return dic
 
 
