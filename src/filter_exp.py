@@ -53,11 +53,11 @@ def gen_pmid2path(input_dir, tar_col_name='PMID', sep='\t', header=0, index_col=
         pmid_values = set(list(df[tar_col_name]))
         nrof_v = len(pmid_values)
         if not nrof_v:
-            wprint('Col-name=%s is empty for file=%s'%(fname, cell_type_path))
+            wprint('Col-name=%s is empty for file=%s'%(tar_col_name, cell_type_path))
             continue
-        elif nrof_v:
-            wprint('Col-name=%s has more than one values=%s in file=%s'%(fname, pmid_values, cell_type_path))
-        pmid = str(pmid_values[0])
+        elif nrof_v > 1:
+            wprint('Col-name=%s has more than one values=%s in file=%s'%(tar_col_name, pmid_values, cell_type_path))
+        pmid = str(list(pmid_values)[0])
 
         if pmid not in dic:
             dic[pmid] = (cell_meta_path, cell_exp_path, cell_type_path)
@@ -70,11 +70,12 @@ def gen_pmid2path(input_dir, tar_col_name='PMID', sep='\t', header=0, index_col=
 
 def gen_pmid(df_in, df_meta, df_exp):
     df_out = None
+    df_li = []
     key_col_names = ['cell_type', 'pmid', 'location', 'CL_ID', 'CL_name', 'Relationship']
     for n in key_col_names:
         if n not in df_in.columns:
             wprint('col-name = %s not in df_human.columns=%s'%(n, df_in.columns))
-            return df_out
+            return None
 
     for idx, row in df_in.iterrows():
         cell_type = row['cell_type']
@@ -83,7 +84,9 @@ def gen_pmid(df_in, df_meta, df_exp):
         cl_id = row['CL_ID']
         cl_name = row['CL_name']
         rela = row['Relationship']
-        tar_ids = list(set(list(df_meta[df_meta['Cluster'] == cell_type])['ID']))
+        id_values = df_meta[df_meta['Cluster'] == cell_type]['ID']
+        #print(type(id_values), print(id_values))
+        tar_ids = list(set(list(df_meta[df_meta['Cluster'] == cell_type]['ID'])))
         nrof_id = len(tar_ids)
         if not nrof_id:
             wprint('No ID values found with cell_type=%s in df_meta=\n%s'%(cell_type, df.head()))
@@ -96,12 +99,14 @@ def gen_pmid(df_in, df_meta, df_exp):
             tar_ids_clean.append(id_)
 
         df_new = df_exp[tar_ids_clean]
-        columns_new = ['|'.join([location, ]) for col in df_new.columns]
+        columns_new = ['|'.join([location,cell_type, cl_id, cl_name, rela ]) for col in df_new.columns]
         df_new.columns = columns_new
-        if df_out is None:
-            df_out = df_new
-        else:
-            df_out = df_out.join(df_new)
+        df_li.append(df_new)
+        #if df_out is None:
+        #    df_out = df_new
+        #else:
+        #    df_out = df_out.join(df_new)
+    df_out = pd.concat(df_li, axis=1)
 
     return df_out
 
@@ -119,12 +124,17 @@ def main(args):
     if not nrof_pmid_db:
         wprint('No pmid directory found in %s'%(args.data_dir))
         return
-    df_human = pd.read_csv(args.input, header=0, index_col=None, sep=arg.sep)
+    print('Reading human.txt')
+    df_human = pd.read_csv(args.input, header=0, index_col=None, sep=args.sep)
     pmid_targets = []
     if not args.pmid_li:
         pmid_targets = pmid2path.keys()
+    else:
+        pmid_targets = args.pmid_li
         
+    print(pmid_targets)
     for pmid in pmid_targets:
+        print(pmid)
         if pmid not in pmid2path:
             wprint('pmid=%s not found in %s'%(pmid, args.data_dir))
             continue
@@ -140,7 +150,7 @@ def main(args):
             wprint('empty after filter cell_exp, for pmid=%s, cell_exp_path=%s'%(pmid, cell_exp_path))
         else:
             output_pmid_path = os.path.join(args.output, pmid + '.txt')
-            write_csv(df_out, output_pmid_path, index=False)
+            write_csv(df_out, output_pmid_path)
     print('All done.')
             
 
